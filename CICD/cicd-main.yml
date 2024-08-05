@@ -3,7 +3,7 @@ trigger:
 
 variables:
   - group: dev-cicd-grp
-  - group: uat-cicd-grp
+
   - name: notebookPath
     value: "notebooks"  
 
@@ -18,14 +18,4 @@ stages:
       environmentName: $(dev-env-name)
       resourceGroupName: $(dev-resource-grp-name)
       serviceConnection: $(dev-service-connection-name)
-      notebookPath: $(notebookPath)
-  
-  - template: deploy.yml
-    parameters:
-      dependsOn: "Deploy_to_Dev_Env"
-      stageId: "Deploy_to_Uat_Env"
-      env: "UAT"
-      environmentName: $(uat-env-name)
-      resourceGroupName: $(uat-resource-grp-name)
-      serviceConnection: $(uat-service-connection-name)
       notebookPath: $(notebookPath)
