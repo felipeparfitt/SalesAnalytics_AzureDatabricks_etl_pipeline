@@ -30,7 +30,7 @@ def read_lading_data(table_name, schema):
         spark.readStream
         .format("cloudFiles")
         .option("cloudFiles.format", "csv")
-        .option("cloudFiles.schemaLocation", f"{checkpoints_path}/bronze{table_name}Load/schemaInfer")
+        .option("cloudFiles.schemaLocation", f"{checkpoints_path}/bronze_{table_name}_load/schemaInfer")
         .option('header', 'true')
         .schema(schema)
         .load(f"{landing_path}/{table_name}")
@@ -46,7 +46,7 @@ def write_bronze_data(df, environment, table_name):
         df.writeStream
           .queryName(f"bronze{table_name}WriteStream")
           .format('delta')
-          .option('checkpointLocation', f"{checkpoints_path}/bronze{table_name}Load/checkpoint")
+          .option('checkpointLocation', f"{checkpoints_path}/bronze_{table_name}_load/checkpoint")
           .outputMode('append')
           .trigger(availableNow=True)
           .toTable(f"dbproj_{environment}.bronze.{table_name}")
