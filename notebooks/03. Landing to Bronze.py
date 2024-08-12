@@ -18,14 +18,44 @@ env = dbutils.widgets.get('env')
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Creating Useful Functions
+# MAGIC ### Creating Useful Functions (Batch/Streaming)
 # MAGIC - creating read function;
 # MAGIC - creating write function;
 
 # COMMAND ----------
 
-def read_lading_data(table_name, schema):
-    print(f"Reading the landing {table_name} table: ", end='')
+# Reading data in batch mode:
+def read_landing_data_batch(table_name, schema):
+    print(f"(Batch) Reading the landing {table_name} table: ", end='')
+    landing_df = (
+        spark.read
+        .format("csv")
+        .option('header', 'true')
+        .schema(schema)
+        .load(f"{landing_path}/{table_name}")
+        .withColumn('extract_time', current_timestamp())
+    )
+    print("Success !!")
+    print("*******************************")
+    return landing_df
+    
+# Writing data in batch mode:
+def write_bronze_data_batch(df, environment, table_name):
+    print(f"(Batch) Write {table_name} to dbproj_{environment}.bronze: ", end='')
+    bronze_df = (
+        df.write
+          .format('delta')
+          .mode('overwrite')
+          .saveAsTable(f"dbproj_{environment}.bronze.{table_name}")
+    )
+    print("Success !!")
+    print("*******************************")
+
+# COMMAND ----------
+
+# Reading data in streaming mode:
+def read_lading_data_stream(table_name, schema):
+    print(f"(Stream) Reading the landing {table_name} table: ", end='')
     landing_df = (
         spark.readStream
         .format("cloudFiles")
@@ -40,8 +70,9 @@ def read_lading_data(table_name, schema):
     print("*******************************")
     return landing_df
 
-def write_bronze_data(df, environment, table_name):
-    print(f"Write {table_name} to dbproj_{environment}.bronze: ", end='')
+# Writing data in streaming mode:
+def write_bronze_data_stream(df, environment, table_name):
+    print(f"(Stream) Write {table_name} to dbproj_{environment}.bronze: ", end='')
     bronze_df = (
         df.writeStream
           .queryName(f"bronze{table_name}WriteStream")
@@ -57,8 +88,13 @@ def write_bronze_data(df, environment, table_name):
 
 # COMMAND ----------
 
+# MAGIC %md 
+# MAGIC ### Reading/Writing all tables to bronze layer
+
+# COMMAND ----------
+
 # Dict used to store all table schemas
-table_schemas = {
+table_schemas_batch = {
     "clients": """
             client_id INT,
             firstname STRING,
@@ -75,13 +111,6 @@ table_schemas = {
             street STRING,
             zip_code STRING
     """,
-    "sales_people": """
-            salesperson_id INT,
-            firstname STRING,
-            lastname STRING,
-            email STRING,
-            phone_number STRING
-    """,
     "sales": """
             sale_id INT,
             client_id INT,
@@ -97,12 +126,22 @@ table_schemas = {
             unit_price DECIMAL(10, 2),
             total_amount DECIMAL(10, 2),
             discount DECIMAL(10, 2)
-    """,
-    "products": """
+    """
+}
+
+table_schemas_stream = {
+ "products": """
             product_id INT,
             product_name STRING,
             description STRING,
             price DECIMAL(10, 2)
+    """,
+    "sales_people": """
+            salesperson_id INT,
+            firstname STRING,
+            lastname STRING,
+            email STRING,
+            phone_number STRING
     """
 }
 
@@ -110,10 +149,21 @@ table_schemas = {
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Reading/Writing all tables to bronze layer
+# MAGIC #### a) Batch mode:
 
 # COMMAND ----------
 
-for table_name, schema in table_schemas.items():
-    df = read_lading_data(table_name, schema)
-    write_bronze_data(df, env, table_name)
+for table_name_batch, schema_batch in table_schemas_batch.items():
+    df_batch = read_lading_data_stream(table_name_batch, schema_batch)
+    write_bronze_data_stream(df_batch, env, table_name_batch)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### b) Stream mode:
+
+# COMMAND ----------
+
+for table_name_stream, schema_stream in table_schemas_stream.items():
+    df_stream = read_lading_data(table_name_stream, schema_stream)
+    write_bronze_data(df_stream, env, table_name_stream)

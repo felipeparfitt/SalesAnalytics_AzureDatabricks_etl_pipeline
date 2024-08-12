@@ -27,12 +27,12 @@ def read_Table(environment, layer, table_name):
     # Reading the data from 'layer'
     read_df = (
         spark.readStream
-            .table(f"dbproj_{environment}.{layer}.{table_name}")
+             .table(f"dbproj_{environment}.{layer}.{table_name}")
     )
     print('Success !!')
     return read_df
 
-def transforming_bronze_tables(df, environment, table_name, sql_query):
+def transforming_bronze_tables(df, table_name, sql_query):
     print(f"Transforming {table_name} table: ", end='')
 
     # Updating the table name
@@ -133,6 +133,6 @@ for table_name, sql_transf_query in silver_transformation_sql.items():
     # Reading data from bronze layer
     df_bronze = read_Table(env, 'bronze', table_name)
     # Transform each bronze table
-    df_bronze_transformed = transforming_bronze_tables(df_bronze, env, table_name, sql_transf_query)
+    df_bronze_transformed = transforming_bronze_tables(df_bronze, table_name, sql_transf_query)
     # Writing to silver layer
     write_to_silver(df_bronze_transformed, env, table_name)
