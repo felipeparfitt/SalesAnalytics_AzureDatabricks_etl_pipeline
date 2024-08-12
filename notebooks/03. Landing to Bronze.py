@@ -155,7 +155,7 @@ table_schemas_stream = {
 
 for table_name_batch, schema_batch in table_schemas_batch.items():
     df_batch = read_lading_data_stream(table_name_batch, schema_batch)
-    write_bronze_data_stream(df_batch, env, table_name_batch)
+    write_bronze_data_batch(df_batch, env, table_name_batch)
 
 # COMMAND ----------
 
@@ -165,5 +165,5 @@ for table_name_batch, schema_batch in table_schemas_batch.items():
 # COMMAND ----------
 
 for table_name_stream, schema_stream in table_schemas_stream.items():
-    df_stream = read_lading_data(table_name_stream, schema_stream)
-    write_bronze_data(df_stream, env, table_name_stream)
+    df_stream = read_lading_data_stream(table_name_stream, schema_stream)
+    write_bronze_data_stream(df_stream, env, table_name_stream)
