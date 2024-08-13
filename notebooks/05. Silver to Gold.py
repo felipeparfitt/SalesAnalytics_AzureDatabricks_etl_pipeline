@@ -49,7 +49,7 @@ def write_to_gold_batch(df, environment, table_name, comparative_keys):
 
     print(f"Writing the {table_name} table to dbproj_{environment}.gold: ", end='')
     if gold_table_exists:
-        df_gold = spark.read.table(gold_table_exists)
+        df_gold = spark.read.table(gold_table_name)
 
         # Merging SOURCE INTO TARGET (targ.id=sorc.id): 
         #   1) when targ.id=sorc.id, then update with source row
