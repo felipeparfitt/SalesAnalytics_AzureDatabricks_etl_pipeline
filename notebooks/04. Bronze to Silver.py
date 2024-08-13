@@ -185,7 +185,7 @@ for table_name, sql_transf_query in silver_transformation_batch.items():
 
 for table_name, sql_transf_query in silver_transformation_stream.items():
     # Reading data from bronze layer
-    df_bronze_stream = read_Table(env, table_name)
+    df_bronze_stream = read_from_bronze_stream(env, table_name)
     # Combining/Tranforming bronze layer
     df_bronze_transformed_stream = transforming_bronze_tables(df_bronze_stream, table_name, sql_transf_query)
     # Writing to silver layer
