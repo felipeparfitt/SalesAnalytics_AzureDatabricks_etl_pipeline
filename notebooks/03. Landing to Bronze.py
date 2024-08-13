@@ -26,7 +26,7 @@ env = dbutils.widgets.get('env')
 
 # Reading data in batch mode:
 def read_landing_data_batch(table_name, schema):
-    print(f"(Batch) Reading the landing {table_name} table: ", end='')
+    print(f"(BATCH) Reading the landing {table_name} table: ", end='')
     landing_df = (
         spark.read
         .format("csv")
@@ -41,7 +41,7 @@ def read_landing_data_batch(table_name, schema):
     
 # Writing data in batch mode:
 def write_bronze_data_batch(df, environment, table_name):
-    print(f"(Batch) Write {table_name} to dbproj_{environment}.bronze: ", end='')
+    print(f"(BATCH) Write {table_name} to dbproj_{environment}.bronze: ", end='')
     bronze_df = (
         df.write
           .format('delta')
@@ -55,7 +55,7 @@ def write_bronze_data_batch(df, environment, table_name):
 
 # Reading data in streaming mode:
 def read_lading_data_stream(table_name, schema):
-    print(f"(Stream) Reading the landing {table_name} table: ", end='')
+    print(f"(STREAM) Reading the landing {table_name} table: ", end='')
     landing_df = (
         spark.readStream
         .format("cloudFiles")
@@ -72,7 +72,7 @@ def read_lading_data_stream(table_name, schema):
 
 # Writing data in streaming mode:
 def write_bronze_data_stream(df, environment, table_name):
-    print(f"(Stream) Write {table_name} to dbproj_{environment}.bronze: ", end='')
+    print(f"(STREAM) Write {table_name} to dbproj_{environment}.bronze: ", end='')
     bronze_df = (
         df.writeStream
           .queryName(f"bronze{table_name}WriteStream")
@@ -130,19 +130,19 @@ table_schemas_batch = {
 }
 
 table_schemas_stream = {
- "products": """
-            product_id INT,
-            product_name STRING,
-            description STRING,
-            price DECIMAL(10, 2)
-    """,
-    "sales_people": """
-            salesperson_id INT,
-            firstname STRING,
-            lastname STRING,
-            email STRING,
-            phone_number STRING
-    """
+        "products": """
+                product_id INT,
+                product_name STRING,
+                description STRING,
+                price DECIMAL(10, 2)
+        """,
+        "sales_people": """
+                salesperson_id INT,
+                firstname STRING,
+                lastname STRING,
+                email STRING,
+                phone_number STRING
+        """
 }
 
 

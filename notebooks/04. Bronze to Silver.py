@@ -21,17 +21,46 @@ env = dbutils.widgets.get('env')
 
 # COMMAND ----------
 
-def read_Table(environment, layer, table_name):
-    print(f"Reading the {table_name} table from dbproj_{environment}.{layer}: ", end='')
+# Reading data in batch mode:
+def read_from_bronze_batch(environment, table_name):
+    print(f"(BATCH) Reading the {table_name} table from dbproj_{environment}.bronze: ", end='')
+
+    # Reading the data from bronze
+    read_df = (
+        spark.read
+             .table(f"dbproj_{environment}.bronze.{table_name}")
+    )
+    print('Success !!')
+    print("*******************************")
+    return read_df
+    
+# Writing data in batch mode:
+def write_to_silver_batch(df, environment, table_name):
+    print(f"(BATCH) Write {table_name} to dbproj_{environment}.silver: ", end='')
+    (
+        df.write
+          .format('delta')
+          .mode('overwrite')
+          .saveAsTable(f"dbproj_{environment}.silver.{table_name}")
+    )
+    print("Success !!")
+    print("*******************************")
+
+# COMMAND ----------
+
+# Reading data in stream mode:
+def read_from_bronze_stream(environment, table_name):
+    print(f"(STREAM) Reading the {table_name} table from dbproj_{environment}.bronze: ", end='')
 
     # Reading the data from 'layer'
     read_df = (
         spark.readStream
-             .table(f"dbproj_{environment}.{layer}.{table_name}")
+             .table(f"dbproj_{environment}.bronze.{table_name}")
     )
     print('Success !!')
     return read_df
 
+# Transforming data in batch/stream mode:
 def transforming_bronze_tables(df, table_name, sql_query):
     print(f"Transforming {table_name} table: ", end='')
 
@@ -46,12 +75,12 @@ def transforming_bronze_tables(df, table_name, sql_query):
     print("************************************")
     return df_tranformed
         
-
-def write_to_silver(df, environment, table_name):
-    print(f"Writing the {table_name} table to dbproj_{environment}.silver: ", end='')
+# Writing data in stream mode:
+def write_to_silver_stream(df, environment, table_name):
+    print(f"(STREAM) Writing the {table_name} table to dbproj_{environment}.silver: ", end='')
 
     # Writing the data to silver layer
-    (
+    writeSilver_df = (
         df.writeStream
           .queryName(f'silver_{table_name}_writeStream')
           .format('delta')
@@ -60,14 +89,40 @@ def write_to_silver(df, environment, table_name):
           .trigger(availableNow=True)
           .toTable(f"dbproj_{environment}.silver.{table_name}")
     )
+    writeSilver_df.awaitTermination()
 
     print("Success !!")
     print("************************************")
 
 # COMMAND ----------
 
-# Dict with sql queries to transform data from bronze to silver
-silver_transformation_sql = {
+# MAGIC %md 
+# MAGIC ### Bronze to Silver Transforming
+
+# COMMAND ----------
+
+# (BATCH) SQL tranformations:
+silver_transformation_batch = {
+    "products": """
+        SELECT
+            *
+        FROM products
+    """,
+    "sales_people": """
+        SELECT
+            salesperson_id,
+            firstname,
+            lastname,
+            CONCAT(firstname, ' ', lastname) AS full_name,
+            email,
+            phone_number,
+            extract_time
+        FROM sales_people
+    """
+}
+
+# (STREAM) SQL tranformations:
+silver_transformation_stream = {
     "clients": """
         SELECT 
             client_id,
@@ -87,17 +142,6 @@ silver_transformation_sql = {
             extract_time
         FROM clients
     """,
-    "sales_people": """
-        SELECT
-            salesperson_id,
-            firstname,
-            lastname,
-            CONCAT(firstname, ' ', lastname) AS full_name,
-            email,
-            phone_number,
-            extract_time
-        FROM sales_people
-    """,
     "sales": """
         SELECT
             sale_id,
@@ -114,25 +158,35 @@ silver_transformation_sql = {
         SELECT
             *
         FROM sales_items
-    """,
-    "products": """
-        SELECT
-            *
-        FROM products
     """
 }
 
 # COMMAND ----------
 
-# MAGIC %md 
-# MAGIC ### Bronze to Silver Transforming
+# MAGIC %md
+# MAGIC #### a) Batch mode:
 
 # COMMAND ----------
 
-for table_name, sql_transf_query in silver_transformation_sql.items():
+for table_name, sql_transf_query in silver_transformation_batch.items():
     # Reading data from bronze layer
-    df_bronze = read_Table(env, 'bronze', table_name)
-    # Transform each bronze table
-    df_bronze_transformed = transforming_bronze_tables(df_bronze, table_name, sql_transf_query)
+    df_bronze_batch = read_from_bronze_batch(env, table_name)
+    # Combining/Tranforming bronze layer 
+    df_bronze_transformed_batch = transforming_bronze_tables(df_bronze_batch, table_name, sql_transf_query)
     # Writing to silver layer
-    write_to_silver(df_bronze_transformed, env, table_name)
+    write_to_silver_batch(df_bronze_transformed_batch, env, table_name)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### a) Stream mode:
+
+# COMMAND ----------
+
+for table_name, sql_transf_query in silver_transformation_stream.items():
+    # Reading data from bronze layer
+    df_bronze_stream = read_Table(env, table_name)
+    # Combining/Tranforming bronze layer
+    df_bronze_transformed_stream = transforming_bronze_tables(df_bronze_stream, table_name, sql_transf_query)
+    # Writing to silver layer
+    write_to_silver_stream(df_bronze_transformed_stream, env, table_name)
