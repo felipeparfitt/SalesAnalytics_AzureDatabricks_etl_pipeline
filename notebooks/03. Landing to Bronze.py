@@ -94,7 +94,7 @@ def write_bronze_data_stream(df, environment, table_name):
 # COMMAND ----------
 
 # Dict used to store all table schemas
-table_schemas_batch = {
+table_schemas_stream = {
     "clients": """
             client_id INT,
             firstname STRING,
@@ -129,7 +129,7 @@ table_schemas_batch = {
     """
 }
 
-table_schemas_stream = {
+table_schemas_batch = {
         "products": """
                 product_id INT,
                 product_name STRING,
