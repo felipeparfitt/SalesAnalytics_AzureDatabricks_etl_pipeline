@@ -13,7 +13,7 @@ env = dbutils.widgets.get('env')
 
 # COMMAND ----------
 
-def read_tables_batch(environment, layer, used_tables):
+def read_from_gold_batch(environment, layer, used_tables):
     # Reading the data from 'layer' and creating temp view
     for temp_view_name in used_tables:
         print(f"Reading the {temp_view_name} table from dbproj_{environment}.{layer}: ", end='')
@@ -37,7 +37,7 @@ def transforming_silver_tables(sql_query):
     return df_tranformed
         
 
-def write_to_gold(df, environment, table_name, comparative_keys):
+def write_to_gold_batch(df, environment, table_name, comparative_keys):
     # Gold table name:
     gold_table_name = f"dbproj_{environment}.gold.{table_name}"
 
@@ -237,11 +237,11 @@ gold_transformation = {
 
 for table_name, sql_transf_query in gold_transformation.items():
     # Reading data from silver layer
-    read_tables_batch(env, 'silver', sql_transf_query["tables"])
+    read_from_gold_batch(env, 'silver', sql_transf_query["tables"])
     # Combining/Tranforming silver layer 
     df_silver_transformed = transforming_silver_tables(sql_transf_query["sql"])
     # Writing to gold layer
-    write_to_gold(df_silver_transformed, env, table_name, sql_transf_query["comparative_keys"])
+    write_to_gold_batch(df_silver_transformed, env, table_name, sql_transf_query["comparative_keys"])
 
 # COMMAND ----------
 
