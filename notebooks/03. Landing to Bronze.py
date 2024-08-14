@@ -1,9 +1,21 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Landing zone to Bronze Layer
+# MAGIC # ETL: Landing Zone to Bronze Layer
+# MAGIC This notebook provides functions to handle data ingestion and storage, distinguishing between batch and streaming modes.
+# MAGIC
+# MAGIC ## Batch Mode
+# MAGIC - **Reading Data in Batch Mode:** Reads CSV data from a landing zone using a specified schema and adds a timestamp column. It returns the DataFrame for further processing.
+# MAGIC
+# MAGIC - **Writing Data in Batch Mode:** Writes the DataFrame to a Delta table in the bronze layer, overwriting any existing data. It efficiently handles batch data storage.
+# MAGIC
+# MAGIC ## Streaming Mode
+# MAGIC - **Reading Data in Streaming Mode:** Reads CSV data from the landing zone in streaming mode, using checkpointing for schema inference and adding a timestamp column. It supports continuous data ingestion.
+# MAGIC
+# MAGIC - **Writing Data in Streaming Mode:** Writes the DataFrame to a Delta table in the bronze layer using streaming mode. It includes checkpointing and ensures real-time data updates and storage.
 
 # COMMAND ----------
 
+# Importing libs
 from pyspark.sql.functions import current_timestamp
 
 # COMMAND ----------
@@ -13,14 +25,13 @@ env = dbutils.widgets.get('env')
 
 # COMMAND ----------
 
-# MAGIC %run "./01. Common Variables"
+# Importing common variables
+%run "./01. Common Variables"
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Creating Useful Functions (Batch/Streaming)
-# MAGIC - creating read function;
-# MAGIC - creating write function;
+# MAGIC ### Creating Useful Functions (Batch/Streaming):
 
 # COMMAND ----------
 
@@ -89,7 +100,7 @@ def write_bronze_data_stream(df, environment, table_name):
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ### Reading/Writing all tables to bronze layer
+# MAGIC ### Reading/Writing all tables to bronze layer:
 
 # COMMAND ----------
 

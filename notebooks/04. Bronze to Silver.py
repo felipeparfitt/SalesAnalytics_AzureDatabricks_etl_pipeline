@@ -1,6 +1,20 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Bronze to Silver Transforming
+# MAGIC # ETL: Bronze to Silver Layer
+# MAGIC
+# MAGIC This notebook provides functions to handle reading, transforming, and writing data between the bronze and silver layers, supporting both batch and streaming modes.
+# MAGIC
+# MAGIC ## Batch Mode
+# MAGIC - **Reading Data from Bronze:** Reads data from a specified table in the bronze layer of a given environment. It returns the DataFrame for further processing, ensuring the data is successfully retrieved.
+# MAGIC
+# MAGIC - **Writing Data to Silver:** Writes a DataFrame to the silver layer of a specified environment in batch mode, overwriting any existing data. It ensures that the transformed data is stored correctly.
+# MAGIC
+# MAGIC ## Streaming Mode
+# MAGIC - **Reading Data from Bronze:** Reads data from a specified table in the bronze layer of a given environment in streaming mode. It supports continuous data ingestion and returns the streaming DataFrame.
+# MAGIC
+# MAGIC - **Transforming Data in Batch/Streaming Mode:** Transforms data from the bronze layer by applying a SQL query to a temporary view of the DataFrame. It handles both batch and streaming data, ensuring the transformations are applied correctly.
+# MAGIC
+# MAGIC - **Writing Data to Silver:** Writes the transformed DataFrame to the silver layer of a specified environment in streaming mode. It uses checkpointing and triggers real-time data updates, ensuring the data is consistently stored.
 
 # COMMAND ----------
 
@@ -9,15 +23,13 @@ env = dbutils.widgets.get('env')
 
 # COMMAND ----------
 
-# MAGIC %run "./01. Common Variables"
+# Importing common variables
+%run "./01. Common Variables"
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Creating Useful Functions
-# MAGIC - creating read function;
-# MAGIC - creating transforming function;
-# MAGIC - creating writing function;
+# MAGIC ### Creating Useful Functions (Batch/Streaming):
 
 # COMMAND ----------
 
@@ -97,7 +109,7 @@ def write_to_silver_stream(df, environment, table_name):
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ### Bronze to Silver Transforming
+# MAGIC ### Reading/Transforming/Writing all tables from bronze to silver layer:
 
 # COMMAND ----------
 
