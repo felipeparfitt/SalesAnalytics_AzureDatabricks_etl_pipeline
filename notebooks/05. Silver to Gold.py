@@ -1,6 +1,17 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Silver to Gold Transforming
+# MAGIC # ETL: Silver to Gold Layer
+# MAGIC
+# MAGIC - **Reading Data from the Gold Layer (Batch Mode):** Reads data from specified tables in the gold layer of a Databricks environment and creates temporary views for further processing. It ensures that the data is accessible for SQL transformations.
+# MAGIC
+# MAGIC - **Transforming Silver Data (Batch Mode):** Performs transformations or combines data from the silver layer using SQL queries. The transformed data is then ready for loading into the gold layer.
+# MAGIC
+# MAGIC - **Writing Data to the Gold Layer (Batch Mode):** Writes the transformed data to the gold layer. If the target table already exists, it merges the new data with the existing data, handling updates, inserts, and deletes as needed. If the table does not exist, it creates a new Delta table in the gold layer.
+
+# COMMAND ----------
+
+# Importing libs
+from delta.tables import DeltaTable
 
 # COMMAND ----------
 
@@ -13,7 +24,13 @@ env = dbutils.widgets.get('env')
 
 # COMMAND ----------
 
-# MAGIC %run "./01. Common Variables"
+# Importing common variables
+%run "./01. Common Variables"
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Creating Useful Functions (Batch):
 
 # COMMAND ----------
 
@@ -79,6 +96,11 @@ def write_to_gold_batch(df, environment, table_name, comparative_keys):
 
     print("Success !!")
     print("************************************")
+
+# COMMAND ----------
+
+# MAGIC %md 
+# MAGIC ### Reading/Transforming/Writing all tables from silver to gold layer:
 
 # COMMAND ----------
 
@@ -246,43 +268,3 @@ for table_name, sql_transf_query in gold_transformation.items():
     df_silver_transformed = transforming_silver_tables(sql_transf_query["sql"])
     # Writing to gold layer
     write_to_gold_batch(df_silver_transformed, env, table_name, sql_transf_query["comparative_keys"])
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC use catalog `dbproj_dev`; select * from `gold`.`sales_people_by_month` limit 100;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC use catalog `dbproj_dev`; select * from `gold`.`sales_people_by_product` limit 100;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC use catalog `dbproj_dev`; select * from `gold`.`sales_people_by_product_month` limit 100;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC use catalog `dbproj_dev`; select * from `gold`.`sales_people_by_total` limit 100;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC use catalog `dbproj_dev`; select * from `gold`.`top_selling_products` limit 100;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC use catalog `dbproj_dev`; select * from `gold`.`top_selling_products_by_month` limit 100;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC use catalog `dbproj_dev`; select * from `gold`.`top_spending_clients` limit 100;
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC use catalog `dbproj_dev`; select * from `gold`.`top_spending_clients_by_age_group` limit 100;

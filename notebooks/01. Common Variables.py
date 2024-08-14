@@ -1,6 +1,8 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Common Variables
+# MAGIC
+# MAGIC In this notebook, the paths for various external data storage locations are retrieved and assigned to variables. These include paths for checkpoints, landing, and medallion zones. The medallion path is further divided into bronze, silver, and gold sub-paths, corresponding to different layers of data processing and storage.
 
 # COMMAND ----------
 

@@ -1,6 +1,16 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Project Setup Notebook
+# MAGIC This notebook provides functions to automate the setup of data catalogs, schemas, and tables.
+# MAGIC
+# MAGIC - **Create All Catalogs:**
+# MAGIC Automates the process of setting up data catalogs for different environments (like dev, test, or prod), ensuring each environment has its own dedicated catalog.
+# MAGIC
+# MAGIC - **Create Schemas with Managed Storage:**
+# MAGIC Sets up schemas within a catalog, organizing data into different layers (such as bronze, silver, or gold) and assigning a specific storage location for each schema.
+# MAGIC
+# MAGIC - **Create Tables in Schemas:**
+# MAGIC Handles the creation of tables within a specified schema and catalog by executing predefined SQL commands, ensuring proper placement and management of the tables.
 
 # COMMAND ----------
 
@@ -9,15 +19,13 @@ env = dbutils.widgets.get('env')
 
 # COMMAND ----------
 
-# MAGIC %run "./01. Common Variables"
+# Importing common variables
+%run "./01. Common Variables"
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Creating Useful Functions
-# MAGIC - creating catalog function;
-# MAGIC - creating schema function;
-# MAGIC - creating table function;
+# MAGIC ### Creating Useful Functions:
 
 # COMMAND ----------
 
