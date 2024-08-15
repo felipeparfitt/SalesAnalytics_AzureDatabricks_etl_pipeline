@@ -49,9 +49,11 @@ The data source consists of five tables: clients, client_addresses, sales_people
 
 The project involves defined schemas for both batch (products, sales_people) and streaming data (clients, client_addresses, sales, sales_items). The ETL workflow processes this data through bronze, silver, and gold layers, ensuring comprehensive data transformation and availability. The relationships and data flow between these tables are illustrated in the data lineage diagram below.
 
-<img src="./diagrams/data_lineage.png" alt="Project Tables" width="900"/>
+![Data lineage](./diagrams/data_lineage.png)
 
 ## Data Transformation Queries
+
+Below are the results from the pipeline, now prepared in the gold layer for BI analysis:
 
 + **Sales People by Total:** Aggregates total sales per salesperson.
 + **Sales People by Month:** Aggregates sales data by salesperson and month.
@@ -61,6 +63,39 @@ The project involves defined schemas for both batch (products, sales_people) and
 + **Top Selling Products by Month:** Shows top-selling products for each month.
 + **Top Spending Clients:** Highlights clients with the highest spending.
 + **Top Spending Clients by Age Group:** Aggregates spending by client age group.
+
+On the left side of the table, labeled "Sales People by Total," the data displays the top 10 salespeople with their salesperson_id, full_name, and total_sales, highlighting the highest performers. On the right side, labeled "Top Spending Clients by Age Group," the table shows total sales broken down by age group, including seniors, adults, children, and teenagers.
+
+<table>
+<tr>
+<td>
+
+| salesperson_id | full_name              | total_sales |
+|----------------|------------------------|-------------|
+| 19             | Maria Fernanda Moura    | 61032.81    |
+| 50             | Antônio Campos          | 60014.83    |
+| 15             | Gustavo Novaes          | 59266.64    |
+| 37             | Vitor Moraes            | 59137.82    |
+| 16             | Laís Azevedo            | 59053.54    |
+| 29             | Yuri Castro             | 58854.93    |
+| 1              | Maria Luiza Cardoso     | 58761.30    |
+| 17             | Julia Moura             | 58530.08    |
+| 12             | Caio da Costa           | 58364.30    |
+| 10             | Calebe Souza            | 58283.94    |
+
+</td>
+<td>
+
+| age_group | total_sales |
+|-----------|-------------|
+| senior    | 1278135.65  |
+| adult     | 946623.57   |
+| children  | 359681.38   |
+| teenager  | 250314.72   |
+
+</td>
+</tr>
+</table>
 
 ## Possible Project Enhancements
 
